@@ -17,13 +17,17 @@
 
 (defn currency-table
   "To create a table in dynamodb"
-  [^clojure.lang.PersistentArrayMap cli-opts
-   ^String table-name]
-  (far/ensure-table cli-opts table-name
-                    [:currency :s]
-                    {:range-keydef [:timestamp :s]
-                     :throughput {:read 1 :write 1}
-                     :block? true}))
+  ([^clojure.lang.PersistentArrayMap cli-opts
+    ^String table-name] (currency-table cli-opts table-name 5 30))
+  ([^clojure.lang.PersistentArrayMap cli-opts
+    ^String table-name
+    ^Integer read-throughput
+    ^Integer write-throughput]
+   (far/ensure-table cli-opts table-name
+                     [:currency :s]
+                     {:range-keydef [:timestamp :s]
+                      :throughput {:read read-throughput :write write-throughput}
+                      :block? true})))
 
 (defn put-currency
   "To register the data"

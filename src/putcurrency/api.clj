@@ -30,13 +30,15 @@
 
 (defn api-create-table
   "To create a table with the name of the current month and the next month"
-  []
+  [^Integer read-throughput
+   ^Integer write-throughput]
   (let [next-year-month (l/format-local-time (t/plus (l/local-now) (t/months 1)) :year-month)
         year-month (l/format-local-time (l/local-now) :year-month)]
     (try
       (doseq [ym [next-year-month year-month]]
         (info (str "create-table: " (table-name ym)))
-        (let [ret (currency-table @dynamodb-cil-opt (table-name ym))]
+        (let [ret (currency-table @dynamodb-cil-opt (table-name ym)
+                                  read-throughput write-throughput)]
           (info ret)))
       (catch Exception e (do
                            (error "caught exception: " (.getMessage e))

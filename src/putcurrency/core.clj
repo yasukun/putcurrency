@@ -18,6 +18,12 @@
    ["-p" "--port PORT" "server port num"
     :default 8080
     :parse-fn #(Integer. %)]
+   ["-r" "--read-throughput READTHROUGHPUT" "read throuhput"
+    :default 5
+    :parse-fn #(Integer. %)]
+   ["-w" "--write-throughput WRITETHROUGHPUT" "write throuhput"
+    :default 30
+    :parse-fn #(Integer. %)]
    [nil "--debug"]
    ["-h" "--help"]])
 
@@ -79,10 +85,11 @@
     (spit output cli-opts-samp)
     (info (str  (.getPath output) " write."))))
 
-(defn create-table []
+(defn create-table [^Integer read-throughput
+                    ^Integer write-throughput]
   (when (nil? dynamodb-cil-opt)
     (throw (Exception. "client option is nil.")))
-  (api-create-table))
+  (api-create-table read-throughput write-throughput))
 
 (defn reset-cli-option [file-name]
   (do
@@ -113,7 +120,7 @@
                   (timbre/set-level! :debug)
                   (timbre/set-level! :info))
                 (reset-cli-option (:input options))
-                (create-table)
+                (create-table (:read-throughput options) (:write-throughput options))
                 (info "start server. port: " (:port options))
                 (start-server (:port options)))))
           :else
